@@ -98,6 +98,7 @@ model AcademicYear {
 model Class {
   id                Int          @id @default(autoincrement())
   name              String
+  gradeLevel        Int // 10 | 11 | 12
   academicYearId    Int
   academicYear      AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   homeroomTeacherId Int?
@@ -107,7 +108,7 @@ model Class {
   teachingAssignments TeachingAssignment[]
   schedules           Schedule[]
 
-  @@unique([name, academicYearId])
+  @@unique([name, gradeLevel, academicYearId])
   @@map("classes")
 }
 

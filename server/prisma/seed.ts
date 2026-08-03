@@ -10,23 +10,21 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log('🌱 Bắt đầu seed dữ liệu...');
 
-  // Xóa dữ liệu cũ theo đúng thứ tự (tránh lỗi khóa ngoại)
   await prisma.attendance.deleteMany();
   await prisma.score.deleteMany();
   await prisma.schedule.deleteMany();
   await prisma.teachingAssignment.deleteMany();
   await prisma.classStudent.deleteMany();
   await prisma.student.deleteMany();
+  await prisma.class.deleteMany();
   await prisma.teacher.deleteMany();
   await prisma.admin.deleteMany();
-  await prisma.class.deleteMany();
   await prisma.subject.deleteMany();
   await prisma.academicYear.deleteMany();
   await prisma.notification.deleteMany();
   await prisma.user.deleteMany();
   console.log('🗑️  Đã xóa dữ liệu cũ');
 
-  // Hash password mẫu dùng chung cho tất cả tài khoản test
   const defaultPassword = await bcrypt.hash('Password@123', 10);
 
   // ============================================
@@ -92,34 +90,36 @@ async function main() {
   console.log(`✅ Tạo ${teachers.length} giáo viên`);
 
   // ============================================
-  // 5. Tạo Class (2 lớp), gán giáo viên chủ nhiệm
+  // 5. Tạo Class (6 lớp: mỗi khối 10/11/12 có 2 lớp A1, A2)
   // ============================================
-  const classA = await prisma.class.create({
-    data: {
-      name: '10A1',
-      academicYearId: academicYear.id,
-      homeroomTeacherId: teachers[0].id,
-    },
-  });
-  const classB = await prisma.class.create({
-    data: {
-      name: '10A2',
-      academicYearId: academicYear.id,
-      homeroomTeacherId: teachers[1].id,
-    },
-  });
-  console.log(`✅ Tạo 2 lớp: ${classA.name}, ${classB.name}`);
+  const gradeLevels = [10, 11, 12];
+  const classes: any[] = [];
+  let teacherIndex = 0;
+
+  for (const grade of gradeLevels) {
+    for (const suffix of ['A1', 'A2']) {
+      const cls = await prisma.class.create({
+        data: {
+          name: suffix,
+          gradeLevel: grade,
+          academicYearId: academicYear.id,
+          homeroomTeacherId: teachers[teacherIndex % teachers.length].id,
+        },
+      });
+      classes.push(cls);
+      teacherIndex++;
+    }
+  }
+  console.log(`✅ Tạo ${classes.length} lớp (khối 10, 11, 12)`);
 
   // ============================================
-  // 6. Tạo Students (20 học sinh, chia đều 2 lớp) + Parent
+  // 6. Tạo Students (20 học sinh, chia đều 6 lớp) + Parent
   // ============================================
-  const classes = [classA, classB];
   const students: any[] = [];
 
   for (let i = 0; i < 20; i++) {
     const fullName = faker.person.fullName();
 
-    // Tạo tài khoản Parent trước
     const parentUser = await prisma.user.create({
       data: {
         email: `parent${i + 1}@gmail.com`,
@@ -128,7 +128,6 @@ async function main() {
       },
     });
 
-    // Tạo tài khoản Student, gắn parentId
     const studentUser = await prisma.user.create({
       data: {
         email: `student${i + 1}@school.edu.vn`,
@@ -147,8 +146,7 @@ async function main() {
 
     students.push(studentUser.student!);
 
-    // Gán học sinh vào lớp (chia đều)
-    const targetClass = classes[i % 2];
+    const targetClass = classes[i % classes.length];
     await prisma.classStudent.create({
       data: {
         classId: targetClass.id,
@@ -202,10 +200,10 @@ async function main() {
   console.log(`✅ Tạo ${scheduleCount} tiết học trong thời khóa biểu`);
 
   // ============================================
-  // 9. Tạo Attendance mẫu (điểm danh vài buổi gần đây)
+  // 9. Tạo Attendance mẫu
   // ============================================
   let attendanceCount = 0;
-  const statuses = ['PRESENT', 'PRESENT', 'PRESENT', 'ABSENT', 'LATE']; // ưu tiên PRESENT nhiều hơn
+  const statuses = ['PRESENT', 'PRESENT', 'PRESENT', 'ABSENT', 'LATE'];
 
   for (const student of students.slice(0, 10)) {
     for (const schedule of schedules.slice(0, 2)) {
@@ -224,7 +222,7 @@ async function main() {
   console.log(`✅ Tạo ${attendanceCount} bản ghi điểm danh mẫu`);
 
   // ============================================
-  // 10. Tạo Score mẫu (điểm số)
+  // 10. Tạo Score mẫu
   // ============================================
   const scoreTypes = [
     { type: 'ORAL', weight: 1 },
@@ -242,7 +240,7 @@ async function main() {
             studentId: student.id,
             subjectId: subject.id,
             scoreType: st.type,
-            value: parseFloat((Math.random() * 4 + 6).toFixed(1)), // điểm 6.0 - 10.0
+            value: parseFloat((Math.random() * 4 + 6).toFixed(1)),
             weight: st.weight,
             semester: 1,
           },
@@ -260,7 +258,7 @@ async function main() {
     data: {
       title: 'Thông báo nghỉ lễ',
       content: 'Nhà trường thông báo lịch nghỉ lễ Quốc Khánh 2/9.',
-      targetRole: null, // gửi cho tất cả
+      targetRole: null,
     },
   });
   await prisma.notification.create({
