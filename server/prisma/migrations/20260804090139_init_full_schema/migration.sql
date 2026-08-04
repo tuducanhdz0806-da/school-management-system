@@ -60,10 +60,11 @@ CREATE TABLE [dbo].[academic_years] (
 CREATE TABLE [dbo].[classes] (
     [id] INT NOT NULL IDENTITY(1,1),
     [name] NVARCHAR(1000) NOT NULL,
+    [gradeLevel] INT NOT NULL,
     [academicYearId] INT NOT NULL,
     [homeroomTeacherId] INT,
     CONSTRAINT [classes_pkey] PRIMARY KEY CLUSTERED ([id]),
-    CONSTRAINT [classes_name_academicYearId_key] UNIQUE NONCLUSTERED ([name],[academicYearId])
+    CONSTRAINT [classes_name_gradeLevel_academicYearId_key] UNIQUE NONCLUSTERED ([name],[gradeLevel],[academicYearId])
 );
 
 -- CreateTable
@@ -106,6 +107,18 @@ CREATE TABLE [dbo].[schedules] (
     [room] NVARCHAR(1000),
     CONSTRAINT [schedules_pkey] PRIMARY KEY CLUSTERED ([id]),
     CONSTRAINT [schedules_classId_dayOfWeek_period_key] UNIQUE NONCLUSTERED ([classId],[dayOfWeek],[period])
+);
+
+-- CreateTable
+CREATE TABLE [dbo].[attendance_sessions] (
+    [id] INT NOT NULL IDENTITY(1,1),
+    [scheduleId] INT NOT NULL,
+    [token] NVARCHAR(1000) NOT NULL,
+    [date] DATE NOT NULL,
+    [expiresAt] DATETIME2 NOT NULL,
+    [createdAt] DATETIME2 NOT NULL CONSTRAINT [attendance_sessions_createdAt_df] DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT [attendance_sessions_pkey] PRIMARY KEY CLUSTERED ([id]),
+    CONSTRAINT [attendance_sessions_token_key] UNIQUE NONCLUSTERED ([token])
 );
 
 -- CreateTable
@@ -195,6 +208,9 @@ ALTER TABLE [dbo].[schedules] ADD CONSTRAINT [schedules_subjectId_fkey] FOREIGN 
 
 -- AddForeignKey
 ALTER TABLE [dbo].[schedules] ADD CONSTRAINT [schedules_teacherId_fkey] FOREIGN KEY ([teacherId]) REFERENCES [dbo].[teachers]([id]) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+-- AddForeignKey
+ALTER TABLE [dbo].[attendance_sessions] ADD CONSTRAINT [attendance_sessions_scheduleId_fkey] FOREIGN KEY ([scheduleId]) REFERENCES [dbo].[schedules]([id]) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 -- AddForeignKey
 ALTER TABLE [dbo].[attendances] ADD CONSTRAINT [attendances_studentId_fkey] FOREIGN KEY ([studentId]) REFERENCES [dbo].[students]([id]) ON DELETE NO ACTION ON UPDATE NO ACTION;

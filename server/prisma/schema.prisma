@@ -166,9 +166,26 @@ model Schedule {
   room      String?
 
   attendances Attendance[]
+  attendanceSessions AttendanceSession[]
 
   @@unique([classId, dayOfWeek, period])
   @@map("schedules")
+}
+
+// ============================================
+// QR ĐIỂM DANH
+// ============================================
+
+model AttendanceSession {
+  id         Int      @id @default(autoincrement())
+  scheduleId Int
+  schedule   Schedule @relation(fields: [scheduleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  token      String   @unique // chuỗi ngẫu nhiên nhúng vào QR code
+  date       DateTime @db.Date
+  expiresAt  DateTime // thời điểm hết hạn (tạo lúc + 5 phút)
+  createdAt  DateTime @default(now())
+
+  @@map("attendance_sessions")
 }
 
 // ============================================
