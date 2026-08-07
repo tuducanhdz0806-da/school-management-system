@@ -9,6 +9,7 @@ import { AcademicYearsModule } from './academic-years/academic-years.module';
 import { SubjectsModule } from './subjects/subjects.module';
 import { ClassesModule } from './classes/classes.module';
 import { AttendanceModule } from './attendance/attendance.module';
+import { ScoresModule } from './scores/scores.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AttendanceModule } from './attendance/attendance.module';
     SubjectsModule,
     ClassesModule,
     AttendanceModule,
+    ScoresModule,
   ],
   controllers: [AppController],
   providers: [AppService],
