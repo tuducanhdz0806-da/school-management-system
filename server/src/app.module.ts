@@ -10,6 +10,7 @@ import { SubjectsModule } from './subjects/subjects.module';
 import { ClassesModule } from './classes/classes.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { ScoresModule } from './scores/scores.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ScoresModule } from './scores/scores.module';
     ClassesModule,
     AttendanceModule,
     ScoresModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
