@@ -4,6 +4,50 @@ import { faker } from '@faker-js/faker';
 import * as bcrypt from 'bcrypt';
 import 'dotenv/config';
 
+// ============================================
+// HÀM SINH TÊN NGƯỜI VIỆT NGẪU NHIÊN
+// ============================================
+const VIETNAMESE_LAST_NAMES = [
+  'Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Huỳnh', 'Phan', 'Vũ', 'Võ', 'Đặng',
+  'Bùi', 'Đỗ', 'Hồ', 'Ngô', 'Dương', 'Lý',
+];
+
+const VIETNAMESE_MIDDLE_NAMES_MALE = ['Văn', 'Hữu', 'Đức', 'Thành', 'Công', 'Quang', 'Minh', 'Anh'];
+const VIETNAMESE_MIDDLE_NAMES_FEMALE = ['Thị', 'Ngọc', 'Thu', 'Hồng', 'Kim', 'Bích', 'Diệu', 'Tuyết'];
+
+const VIETNAMESE_FIRST_NAMES_MALE = [
+  'An', 'Bình', 'Cường', 'Dũng', 'Đạt', 'Hải', 'Hùng', 'Khoa', 'Long', 'Minh',
+  'Nam', 'Phong', 'Quân', 'Sơn', 'Tài', 'Thắng', 'Trung', 'Tuấn', 'Việt', 'Vinh',
+];
+
+const VIETNAMESE_FIRST_NAMES_FEMALE = [
+  'Anh', 'Chi', 'Dung', 'Giang', 'Hà', 'Hoa', 'Huyền', 'Lan', 'Linh', 'Mai',
+  'My', 'Nga', 'Ngọc', 'Nhi', 'Phương', 'Thảo', 'Thu', 'Trang', 'Vy', 'Yến',
+];
+
+function randomItem<T>(arr: T[]): T {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function generateVietnameseName(gender?: 'male' | 'female'): string {
+  const isMale = gender ? gender === 'male' : Math.random() > 0.5;
+  const lastName = randomItem(VIETNAMESE_LAST_NAMES);
+  const middleName = isMale
+    ? randomItem(VIETNAMESE_MIDDLE_NAMES_MALE)
+    : randomItem(VIETNAMESE_MIDDLE_NAMES_FEMALE);
+  const firstName = isMale
+    ? randomItem(VIETNAMESE_FIRST_NAMES_MALE)
+    : randomItem(VIETNAMESE_FIRST_NAMES_FEMALE);
+  return `${lastName} ${middleName} ${firstName}`;
+}
+
+function generateVietnamesePhone(): string {
+  const prefixes = ['090', '091', '093', '094', '096', '097', '098', '032', '033', '070'];
+  const prefix = randomItem(prefixes);
+  const suffix = Math.floor(1000000 + Math.random() * 9000000).toString();
+  return `${prefix}${suffix}`;
+}
+
 const adapter = new PrismaMssql(process.env.DATABASE_URL!);
 const prisma = new PrismaClient({ adapter });
 
@@ -71,7 +115,7 @@ async function main() {
   // ============================================
   const teachers: any[] = [];
   for (let i = 0; i < 5; i++) {
-    const fullName = faker.person.fullName();
+    const fullName = generateVietnameseName();
     const user = await prisma.user.create({
       data: {
         email: `teacher${i + 1}@school.edu.vn`,
@@ -80,7 +124,7 @@ async function main() {
         teacher: {
           create: {
             fullName,
-            phone: faker.phone.number(),
+            phone: generateVietnamesePhone(),
           },
         },
       },
@@ -119,8 +163,8 @@ async function main() {
   const students: any[] = [];
 
   for (let i = 0; i < 20; i++) {
-  const fullName = faker.person.fullName();
-  const parentFullName = faker.person.fullName();
+  const fullName = generateVietnameseName();
+  const parentFullName = generateVietnameseName();
 
   const parentUser = await prisma.user.create({
     data: {
@@ -130,7 +174,7 @@ async function main() {
       parent: {
         create: {
           fullName: parentFullName,
-          phone: faker.phone.number(),
+          phone: generateVietnamesePhone(),
         },
       },
     },
