@@ -33,8 +33,7 @@ model User {
   teacher Teacher?
   student Student?
   admin   Admin?
-
-  childrenAsParent Student[] @relation("ParentChildren")
+  parent Parent?
 
   @@index([email])
   @@map("users")
@@ -47,6 +46,17 @@ model Admin {
   fullName String
 
   @@map("admins")
+}
+model Parent {
+  id       Int     @id @default(autoincrement())
+  userId   Int     @unique
+  user     User    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  fullName String
+  phone    String?
+
+  children Student[]
+
+  @@map("parents")
 }
 
 model Teacher {
@@ -71,7 +81,7 @@ model Student {
   dateOfBirth DateTime?
 
   parentId Int?
-  parent   User? @relation("ParentChildren", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  parent   Parent? @relation(fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   classStudents ClassStudent[]
   attendances   Attendance[]

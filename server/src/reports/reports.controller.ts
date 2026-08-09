@@ -46,13 +46,16 @@ export class ReportsController {
     }
 
     if (user.role === 'PARENT') {
-      const student = await this.prisma.student.findFirst({
-        where: { id: studentId, parentId: user.userId },
-      });
-      if (!student) {
-        throw new ForbiddenException('Bạn chỉ được xem phiếu điểm của con mình');
-      }
-      return;
+  	const parent = await this.prisma.parent.findUnique({
+    	  where: { userId: user.userId },
+  	});
+  	const student = await this.prisma.student.findFirst({
+    	  where: { id: studentId, parentId: parent?.id },
+  	});
+  	if (!student) {
+    	  throw new ForbiddenException('Bạn chỉ được xem điểm của con mình');
+  	}
+  	return;
     }
 
     throw new ForbiddenException('Không có quyền truy cập');

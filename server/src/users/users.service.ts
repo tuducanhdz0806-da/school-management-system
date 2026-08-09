@@ -23,6 +23,7 @@ export class UsersService {
         teacher: true,
         student: true,
         admin: true,
+	parent: true,
       },
       orderBy: { createdAt: 'desc' },
     });
@@ -39,6 +40,7 @@ export class UsersService {
         teacher: true,
         student: true,
         admin: true,
+	parent: true,
       },
     });
 

@@ -16,6 +16,7 @@ async function main() {
   await prisma.teachingAssignment.deleteMany();
   await prisma.classStudent.deleteMany();
   await prisma.student.deleteMany();
+  await prisma.parent.deleteMany();
   await prisma.class.deleteMany();
   await prisma.teacher.deleteMany();
   await prisma.admin.deleteMany();
@@ -118,35 +119,43 @@ async function main() {
   const students: any[] = [];
 
   for (let i = 0; i < 20; i++) {
-    const fullName = faker.person.fullName();
+  const fullName = faker.person.fullName();
+  const parentFullName = faker.person.fullName();
 
-    const parentUser = await prisma.user.create({
-      data: {
-        email: `parent${i + 1}@gmail.com`,
-        passwordHash: defaultPassword,
-        role: 'PARENT',
-      },
-    });
-
-    const studentUser = await prisma.user.create({
-      data: {
-        email: `student${i + 1}@school.edu.vn`,
-        passwordHash: defaultPassword,
-        role: 'STUDENT',
-        student: {
-          create: {
-            fullName,
-            dateOfBirth: faker.date.birthdate({ min: 15, max: 17, mode: 'age' }),
-            parentId: parentUser.id,
-          },
+  const parentUser = await prisma.user.create({
+    data: {
+      email: `parent${i + 1}@gmail.com`,
+      passwordHash: defaultPassword,
+      role: 'PARENT',
+      parent: {
+        create: {
+          fullName: parentFullName,
+          phone: faker.phone.number(),
         },
       },
-      include: { student: true },
-    });
+    },
+    include: { parent: true },
+  });
 
-    students.push(studentUser.student!);
+  const studentUser = await prisma.user.create({
+    data: {
+      email: `student${i + 1}@school.edu.vn`,
+      passwordHash: defaultPassword,
+      role: 'STUDENT',
+      student: {
+        create: {
+          fullName,
+          dateOfBirth: faker.date.birthdate({ min: 15, max: 17, mode: 'age' }),
+          parentId: parentUser.parent!.id,
+        },
+      },
+    },
+    include: { student: true },
+  });
 
-    const targetClass = classes[i % classes.length];
+  students.push(studentUser.student!);
+
+  const targetClass = classes[i % classes.length];
     await prisma.classStudent.create({
       data: {
         classId: targetClass.id,
