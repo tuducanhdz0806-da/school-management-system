@@ -6,6 +6,8 @@ import {
   Param,
   Body,
   Query,
+  Req,
+  ForbiddenException,
   ParseIntPipe,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -18,14 +20,18 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @Auth('ADMIN') // chỉ ADMIN được xem toàn bộ danh sách user
+  @Auth('ADMIN')
   findAll(@Query() query: QueryUserDto) {
     return this.usersService.findAll(query);
   }
 
   @Get(':id')
-  @Auth('ADMIN') // chỉ ADMIN được xem chi tiết user khác
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  @Auth('ADMIN', 'TEACHER', 'STUDENT', 'PARENT')
+  findOne(@Param('id', ParseIntPipe) id: number, @Req() req: any) {
+    // ADMIN xem được ai cũng được, còn lại chỉ xem được chính mình
+    if (req.user.role !== 'ADMIN' && req.user.userId !== id) {
+      throw new ForbiddenException('Bạn chỉ được xem thông tin của chính mình');
+    }
     return this.usersService.findOne(id);
   }
 
