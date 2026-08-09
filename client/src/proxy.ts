@@ -19,7 +19,7 @@ const roleRoutePrefix: Record<string, string> = {
   PARENT: '/student', // Parent dùng chung layout với Student
 };
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('accessToken')?.value;
 
