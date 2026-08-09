@@ -53,7 +53,13 @@ export default function UsersPage() {
   const deleteUser = useDeleteUser();
 
   function getFullName(user: any): string {
-    return user.admin?.fullName || user.teacher?.fullName || user.student?.fullName || '—';
+    return (
+      user.admin?.fullName ||
+      user.teacher?.fullName ||
+      user.student?.fullName ||
+      user.parent?.fullName ||
+      '—'
+    );
   }
 
   return (

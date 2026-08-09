@@ -8,6 +8,7 @@ export interface User {
   teacher?: { id: number; fullName: string; phone: string | null };
   student?: { id: number; fullName: string; dateOfBirth: string | null; parentId: number | null };
   admin?: { id: number; fullName: string };
+  parent?: { id: number; fullName: string; phone: string | null };
 }
 
 export interface AuthTokens {
