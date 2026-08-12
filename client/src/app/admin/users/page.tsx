@@ -69,7 +69,7 @@ export default function UsersPage() {
           <h1 className="text-2xl font-bold">Người dùng</h1>
           <p className="text-gray-500">Quản lý tài khoản trong hệ thống</p>
         </div>
-        <Select value={roleFilter} onValueChange={setRoleFilter}>
+        <Select value={roleFilter} onValueChange={(value) => setRoleFilter(value ?? 'ALL')}>
           <SelectTrigger className="w-40">
             <SelectValue placeholder="Lọc theo vai trò" />
           </SelectTrigger>

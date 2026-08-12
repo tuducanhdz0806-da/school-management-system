@@ -78,7 +78,7 @@ export function CreateClassDialog() {
             </div>
             <div className="space-y-2">
               <Label>Khối</Label>
-              <Select value={gradeLevel} onValueChange={setGradeLevel}>
+              <Select value={gradeLevel} onValueChange={(value) => setGradeLevel(value ?? '')}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -93,9 +93,11 @@ export function CreateClassDialog() {
 
           <div className="space-y-2">
             <Label>Năm học</Label>
-            <Select value={academicYearId} onValueChange={setAcademicYearId}>
+            <Select value={academicYearId} onValueChange={(value) => setAcademicYearId(value ?? '')}>
               <SelectTrigger>
-                <SelectValue placeholder="Chọn năm học" />
+                <SelectValue placeholder="Chọn năm học">
+                    {(academicYears || []).find((y) => String(y.id) === academicYearId)?.name}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {academicYears?.map((y) => (
@@ -109,17 +111,19 @@ export function CreateClassDialog() {
 
           <div className="space-y-2">
             <Label>Giáo viên chủ nhiệm (tùy chọn)</Label>
-            <Select value={homeroomTeacherId} onValueChange={setHomeroomTeacherId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Chọn giáo viên" />
-              </SelectTrigger>
-              <SelectContent>
-                {teachers?.map((t: any) => (
-                  <SelectItem key={t.teacher.id} value={String(t.teacher.id)}>
-                    {t.teacher.fullName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
+            <Select value={homeroomTeacherId} onValueChange={(value) => setHomeroomTeacherId(value ?? '')}>
+                <SelectTrigger>
+                    <SelectValue placeholder="Chọn giáo viên">
+                        {(teachers || []).find((t: any) => String(t.teacher?.id) === homeroomTeacherId)?.teacher?.fullName}
+                    </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                    {teachers?.map((t: any) => (
+                    <SelectItem key={t.teacher.id} value={String(t.teacher.id)}>
+                        {t.teacher.fullName}
+                    </SelectItem>
+                    ))}
+                </SelectContent>
             </Select>
           </div>
 
