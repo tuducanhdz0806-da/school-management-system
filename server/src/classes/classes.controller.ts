@@ -7,6 +7,7 @@ import {
   Param,
   Body,
   Query,
+  Req,
   ParseIntPipe,
 } from '@nestjs/common';
 import { ClassesService } from './classes.service';
@@ -28,6 +29,12 @@ export class ClassesController {
   @Get()
   findAll(@Query('gradeLevel') gradeLevel?: string) {
     return this.service.findAll(gradeLevel ? parseInt(gradeLevel) : undefined);
+  }
+
+  @Get('my-assignments')
+  @Auth('TEACHER')
+  getMyAssignments(@Req() req: any) {
+    return this.service.findMyTeachingAssignments(req.user.userId);
   }
 
   @Get(':id')

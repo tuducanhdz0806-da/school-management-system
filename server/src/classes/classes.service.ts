@@ -111,4 +111,22 @@ export class ClassesService {
       where: { classId_studentId: { classId, studentId } },
     });
   }
+
+  async findMyTeachingAssignments(teacherUserId: number) {
+    const teacher = await this.prisma.teacher.findUnique({
+      where: { userId: teacherUserId },
+    });
+    if (!teacher) {
+      return [];
+    }
+
+    return this.prisma.teachingAssignment.findMany({
+      where: { teacherId: teacher.id },
+      include: {
+        class: { include: { academicYear: true } },
+        subject: true,
+      },
+      orderBy: [{ class: { gradeLevel: 'asc' } }, { class: { name: 'asc' } }],
+    });
+  }
 }
