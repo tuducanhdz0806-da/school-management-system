@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, Param, Query, Req } from '@nestjs/common';
+import { Controller, Post, Get, Body, Param, Query, Req, ParseIntPipe } from '@nestjs/common';
 import { AttendanceService } from './attendance.service';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { CheckInDto } from './dto/check-in.dto';
@@ -25,6 +25,18 @@ export class AttendanceController {
   @Auth('TEACHER', 'ADMIN') // cả TEACHER và ADMIN đều được điểm danh thủ công
   markManual(@Body() dto: ManualAttendanceDto) {
     return this.service.markManual(dto);
+  }
+
+  @Get('my-schedules')
+  @Auth('TEACHER')
+  getMySchedules(@Req() req: any) {
+    return this.service.getMySchedules(req.user.userId);
+  }
+
+  @Get('schedule/:scheduleId')
+  @Auth('TEACHER', 'ADMIN')
+  getBySchedule(@Param('scheduleId', ParseIntPipe) scheduleId: number) {
+    return this.service.getBySchedule(scheduleId);
   }
 
   @Get('class/:classId')

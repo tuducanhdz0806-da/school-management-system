@@ -113,8 +113,9 @@ export class AttendanceService {
   }
 
   async markManual(dto: ManualAttendanceDto) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const now = new Date();
+    const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+
 
     const existing = await this.prisma.attendance.findUnique({
       where: {
@@ -158,6 +159,42 @@ export class AttendanceService {
         schedule: { include: { subject: true } },
       },
       orderBy: { studentId: 'asc' },
+    });
+  }
+
+  async getMySchedules(teacherUserId: number) {
+    const teacher = await this.prisma.teacher.findUnique({
+      where: { userId: teacherUserId },
+    });
+    if (!teacher) {
+      return [];
+    }
+
+    return this.prisma.schedule.findMany({
+      where: { teacherId: teacher.id },
+      include: {
+        class: true,
+        subject: true,
+      },
+      orderBy: [{ dayOfWeek: 'asc' }, { period: 'asc' }],
+    });
+  }
+
+  async getBySchedule(scheduleId: number) {
+    const now = new Date();
+    const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
+
+    return this.prisma.attendance.findMany({
+      where: {
+        scheduleId,
+        date: {
+          gte: todayStart,
+          lt: todayEnd,
+        },
+      },
+      include: { student: true },
+      orderBy: { createdAt: 'desc' },
     });
   }
 }
