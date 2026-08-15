@@ -1,0 +1,254 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "sqlserver"
+}
+
+// ============================================
+// CÁC GIÁ TRỊ QUY ƯỚC (SQL Server không hỗ trợ enum, validate ở tầng code)
+// ============================================
+// Role: "ADMIN" | "TEACHER" | "STUDENT" | "PARENT"
+// AttendanceStatus: "PRESENT" | "ABSENT" | "LATE" | "EXCUSED"
+// ScoreType: "ORAL" | "QUIZ_15" | "TEST_45" | "FINAL"
+// DayOfWeek: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY"
+
+// ============================================
+// USER & AUTH
+// ============================================
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  passwordHash String
+  role         String // "ADMIN" | "TEACHER" | "STUDENT" | "PARENT"
+  refreshToken String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  teacher Teacher?
+  student Student?
+  admin   Admin?
+  parent Parent?
+
+  @@index([email])
+  @@map("users")
+}
+
+model Admin {
+  id       Int    @id @default(autoincrement())
+  userId   Int    @unique
+  user     User   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  fullName String
+
+  @@map("admins")
+}
+model Parent {
+  id       Int     @id @default(autoincrement())
+  userId   Int     @unique
+  user     User    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  fullName String
+  phone    String?
+
+  children Student[]
+
+  @@map("parents")
+}
+
+model Teacher {
+  id       Int     @id @default(autoincrement())
+  userId   Int     @unique
+  user     User    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  fullName String
+  phone    String?
+
+  homeroomClasses     Class[]              @relation("HomeroomTeacher")
+  teachingAssignments TeachingAssignment[]
+  schedules           Schedule[]
+
+  @@map("teachers")
+}
+
+model Student {
+  id          Int       @id @default(autoincrement())
+  userId      Int       @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  fullName    String
+  dateOfBirth DateTime?
+
+  parentId Int?
+  parent   Parent? @relation(fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  classStudents ClassStudent[]
+  attendances   Attendance[]
+  scores        Score[]
+
+  @@map("students")
+}
+
+// ============================================
+// CẤU TRÚC HỌC THUẬT
+// ============================================
+
+model AcademicYear {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  startDate DateTime
+  endDate   DateTime
+
+  classes Class[]
+
+  @@map("academic_years")
+}
+
+model Class {
+  id                Int          @id @default(autoincrement())
+  name              String
+  gradeLevel        Int // 10 | 11 | 12
+  academicYearId    Int
+  academicYear      AcademicYear @relation(fields: [academicYearId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  homeroomTeacherId Int?
+  homeroomTeacher   Teacher?     @relation("HomeroomTeacher", fields: [homeroomTeacherId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  classStudents       ClassStudent[]
+  teachingAssignments TeachingAssignment[]
+  schedules           Schedule[]
+
+  @@unique([name, gradeLevel, academicYearId])
+  @@map("classes")
+}
+
+model Subject {
+  id     Int    @id @default(autoincrement())
+  name   String @unique
+  credit Int    @default(1)
+
+  teachingAssignments TeachingAssignment[]
+  schedules           Schedule[]
+  scores              Score[]
+
+  @@map("subjects")
+}
+
+model ClassStudent {
+  id        Int      @id @default(autoincrement())
+  classId   Int
+  class     Class    @relation(fields: [classId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  studentId Int
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  joinedAt  DateTime @default(now())
+
+  @@unique([classId, studentId])
+  @@map("class_students")
+}
+
+model TeachingAssignment {
+  id        Int     @id @default(autoincrement())
+  teacherId Int
+  teacher   Teacher @relation(fields: [teacherId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subjectId Int
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  classId   Int
+  class     Class   @relation(fields: [classId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([teacherId, subjectId, classId])
+  @@map("teaching_assignments")
+}
+
+// ============================================
+// THỜI KHÓA BIỂU
+// ============================================
+
+model Schedule {
+  id        Int     @id @default(autoincrement())
+  classId   Int
+  class     Class   @relation(fields: [classId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subjectId Int
+  subject   Subject @relation(fields: [subjectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  teacherId Int
+  teacher   Teacher @relation(fields: [teacherId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dayOfWeek String // "MONDAY" | "TUESDAY" | ...
+  period    Int
+  room      String?
+
+  attendances Attendance[]
+  attendanceSessions AttendanceSession[]
+
+  @@unique([classId, dayOfWeek, period])
+  @@map("schedules")
+}
+
+// ============================================
+// QR ĐIỂM DANH
+// ============================================
+
+model AttendanceSession {
+  id         Int      @id @default(autoincrement())
+  scheduleId Int
+  schedule   Schedule @relation(fields: [scheduleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  token      String   @unique // chuỗi ngẫu nhiên nhúng vào QR code
+  date       DateTime @db.Date
+  expiresAt  DateTime // thời điểm hết hạn (tạo lúc + 5 phút)
+  createdAt  DateTime @default(now())
+
+  @@map("attendance_sessions")
+}
+
+// ============================================
+// ĐIỂM DANH
+// ============================================
+
+model Attendance {
+  id          Int      @id @default(autoincrement())
+  studentId   Int
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scheduleId  Int
+  schedule    Schedule @relation(fields: [scheduleId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  date        DateTime @db.Date
+  status      String   @default("PRESENT") // "PRESENT" | "ABSENT" | "LATE" | "EXCUSED"
+  checkedByQr Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@unique([studentId, scheduleId, date])
+  @@index([studentId, date])
+  @@map("attendances")
+}
+
+// ============================================
+// ĐIỂM SỐ
+// ============================================
+
+model Score {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  student   Student  @relation(fields: [studentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  subjectId Int
+  subject   Subject  @relation(fields: [subjectId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  scoreType String // "ORAL" | "QUIZ_15" | "TEST_45" | "FINAL"
+  value     Float
+  weight    Int      @default(1)
+  semester  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([studentId, semester])
+  @@map("scores")
+}
+
+// ============================================
+// THÔNG BÁO
+// ============================================
+
+model Notification {
+  id         Int      @id @default(autoincrement())
+  title      String
+  content    String   @db.NVarChar(Max)
+  targetRole String? // "ADMIN" | "TEACHER" | "STUDENT" | "PARENT" | null (gửi tất cả)
+  createdAt  DateTime @default(now())
+
+  @@map("notifications")
+}
