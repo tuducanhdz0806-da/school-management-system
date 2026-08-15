@@ -6,10 +6,17 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: [
-      'http://localhost:3000',
-      'school-mgmt-system-steel.vercel.app', 
-    ],
+    origin: (origin, callback) => {
+      if (
+        !origin ||
+        origin === 'http://localhost:3000' ||
+        /\.vercel\.app$/.test(origin)
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
   });
   app.useGlobalPipes(
     new ValidationPipe({
