@@ -5,7 +5,12 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors({ origin: 'http://localhost:3000' });
+  app.enableCors({
+    origin: [
+      'http://localhost:3000',
+      'school-mgmt-system-steel.vercel.app', 
+    ],
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
