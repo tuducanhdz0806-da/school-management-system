@@ -20,3 +20,17 @@ export const ATTENDANCE_STATUS_COLORS: Record<string, string> = {
   LATE: 'bg-amber-100 text-amber-700',
   EXCUSED: 'bg-indigo-100 text-indigo-700',
 };
+
+export const SCORE_TYPE_LABELS: Record<string, string> = {
+  ORAL: 'Miệng',
+  QUIZ_15: '15 phút',
+  TEST_45: '1 tiết',
+  FINAL: 'Cuối kỳ',
+};
+
+export const SCORE_TYPE_OPTIONS = [
+  { value: 'ORAL', label: 'Miệng (hệ số 1)' },
+  { value: 'QUIZ_15', label: '15 phút (hệ số 1)' },
+  { value: 'TEST_45', label: '1 tiết (hệ số 2)' },
+  { value: 'FINAL', label: 'Cuối kỳ (hệ số 3)' },
+];
