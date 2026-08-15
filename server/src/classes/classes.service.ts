@@ -129,4 +129,29 @@ export class ClassesService {
       orderBy: [{ class: { gradeLevel: 'asc' } }, { class: { name: 'asc' } }],
     });
   }
+
+  async getMySchedule(studentUserId: number) {
+    const student = await this.prisma.student.findUnique({
+      where: { userId: studentUserId },
+    });
+    if (!student) {
+      return [];
+    }
+
+    const classStudent = await this.prisma.classStudent.findFirst({
+      where: { studentId: student.id },
+    });
+    if (!classStudent) {
+      return [];
+    }
+
+    return this.prisma.schedule.findMany({
+      where: { classId: classStudent.classId },
+      include: {
+        subject: true,
+        teacher: true,
+      },
+      orderBy: [{ dayOfWeek: 'asc' }, { period: 'asc' }],
+    });
+  }
 }

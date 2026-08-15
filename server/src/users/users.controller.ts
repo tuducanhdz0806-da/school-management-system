@@ -25,6 +25,12 @@ export class UsersController {
     return this.usersService.findAll(query);
   }
 
+  @Get('my-child')
+  @Auth('PARENT')
+  getMyChild(@Req() req: any) {
+    return this.usersService.findMyChild(req.user.userId);
+  }
+
   @Get(':id')
   @Auth('ADMIN', 'TEACHER', 'STUDENT', 'PARENT')
   findOne(@Param('id', ParseIntPipe) id: number, @Req() req: any) {

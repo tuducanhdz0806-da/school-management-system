@@ -74,4 +74,19 @@ export class UsersService {
       select: { id: true, email: true, deletedAt: true },
     });
   }
+
+  async findMyChild(parentUserId: number) {
+    const parent = await this.prisma.parent.findUnique({
+      where: { userId: parentUserId },
+    });
+    if (!parent) {
+      return null;
+    }
+
+    const child = await this.prisma.student.findFirst({
+      where: { parentId: parent.id },
+    });
+
+    return child;
+  }
 }

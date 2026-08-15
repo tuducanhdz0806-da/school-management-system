@@ -37,6 +37,12 @@ export class ClassesController {
     return this.service.findMyTeachingAssignments(req.user.userId);
   }
 
+  @Get('my-schedule')
+  @Auth('STUDENT')
+  getMySchedule(@Req() req: any) {
+    return this.service.getMySchedule(req.user.userId);
+  }
+
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.service.findOne(id);
