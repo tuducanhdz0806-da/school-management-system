@@ -42,8 +42,11 @@ export class UsersController {
   }
 
   @Patch(':id')
-  @Auth('ADMIN')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserDto) {
+  @Auth('ADMIN', 'TEACHER', 'STUDENT', 'PARENT')
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserDto, @Req() req: any) {
+    if (req.user.role !== 'ADMIN' && req.user.userId !== id) {
+      throw new ForbiddenException('Bạn chỉ được sửa thông tin của chính mình');
+    }
     return this.usersService.update(id, dto);
   }
 
