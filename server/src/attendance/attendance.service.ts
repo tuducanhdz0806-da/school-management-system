@@ -197,4 +197,26 @@ export class AttendanceService {
       orderBy: { createdAt: 'desc' },
     });
   }
+
+  async getAttendanceStats(studentId: number) {
+    const student = await this.prisma.student.findUnique({
+      where: { id: studentId },
+    });
+    if (!student) {
+      return { presentCount: 0, totalSessions: 0, attendanceRate: 0 };
+    }
+
+    const records = await this.prisma.attendance.findMany({
+      where: { studentId },
+    });
+
+    const presentCount = records.filter(
+      (r) => r.status === 'PRESENT' || r.status === 'LATE',
+    ).length;
+    const totalSessions = records.length;
+    const attendanceRate =
+      totalSessions > 0 ? Math.round((presentCount / totalSessions) * 100) : 0;
+
+    return { presentCount, totalSessions, attendanceRate };
+  }
 }
