@@ -32,6 +32,7 @@ export class ClassesController {
   }
 
   @Get()
+  @Auth('ADMIN', 'TEACHER')
   findAll(@Query('gradeLevel') gradeLevel?: string) {
     return this.service.findAll(gradeLevel ? parseInt(gradeLevel) : undefined);
   }

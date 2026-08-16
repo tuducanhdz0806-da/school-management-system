@@ -68,6 +68,12 @@ export class ScoresController {
     return this.service.calculateAverage(studentId, semester ? parseInt(semester) : 1);
   }
 
+  @Get('pending-tasks')
+  @Auth('TEACHER')
+  getPendingTasks(@Req() req: any, @Query('semester') semester: string) {
+    return this.service.getPendingTasks(req.user.userId, semester ? parseInt(semester) : 1);
+  }
+
   @Get('class/:classId/subject/:subjectId')
   @Auth('TEACHER', 'ADMIN')
   findByClassAndSubject(
