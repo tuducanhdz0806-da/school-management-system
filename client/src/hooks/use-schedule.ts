@@ -1,12 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 
-export function useMySchedule() {
+export function useSchedule(studentId: number | null) {
   return useQuery({
-    queryKey: ['my-schedule'],
+    queryKey: ['schedule', studentId],
     queryFn: async () => {
-      const res = await apiClient.get('/classes/my-schedule');
+      const res = await apiClient.get(`/classes/schedule/${studentId}`);
       return res.data;
     },
+    enabled: !!studentId,
   });
 }

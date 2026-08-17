@@ -1,13 +1,15 @@
 'use client';
 
-import { useMySchedule } from '@/hooks/use-schedule';
+import { useSchedule } from '@/hooks/use-schedule';
+import { useCurrentStudent } from '@/hooks/use-current-student';
 import { Skeleton } from '@/components/ui/skeleton';
 import { DAY_OF_WEEK_LABELS } from '@/lib/constants';
 
 const DAYS_ORDER = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
 
 export default function SchedulePage() {
-  const { data: schedules, isLoading } = useMySchedule();
+  const { student } = useCurrentStudent();
+  const { data: schedules, isLoading } = useSchedule(student?.id ?? null);
 
   if (isLoading) {
     return <Skeleton className="h-96 w-full" />;

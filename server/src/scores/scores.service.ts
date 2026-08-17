@@ -163,4 +163,43 @@ export class ScoresService {
     }
     return result;
   }
+
+  async getPendingTasks(teacherUserId: number, semester: number) {
+    const teacher = await this.prisma.teacher.findUnique({
+      where: { userId: teacherUserId },
+    });
+    if (!teacher) return [];
+
+    const assignments = await this.prisma.teachingAssignment.findMany({
+      where: { teacherId: teacher.id },
+      include: { class: true, subject: true },
+    });
+
+    const tasks: any[] = [];
+    for (const a of assignments) {
+      const studentCount = await this.prisma.classStudent.count({
+        where: { classId: a.classId },
+      });
+      const finalScoreCount = await this.prisma.score.count({
+        where: {
+          subjectId: a.subjectId,
+          semester,
+          scoreType: 'FINAL',
+          student: { classStudents: { some: { classId: a.classId } } },
+        },
+      });
+
+      if (studentCount > 0 && finalScoreCount < studentCount) {
+        tasks.push({
+          className: `${a.class.gradeLevel}${a.class.name}`,
+          subjectName: a.subject.name,
+          taskType: 'ENTER_SCORE',
+          missingCount: studentCount - finalScoreCount,
+          totalStudents: studentCount,
+        });
+      }
+    }
+
+    return tasks;
+  }
 }
