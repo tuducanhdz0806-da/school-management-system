@@ -22,8 +22,15 @@ export function QrScanner({
 
     scanner
       .start(
-        { facingMode: 'environment' }, // ưu tiên camera sau (điện thoại)
-        { fps: 10, qrbox: { width: 250, height: 250 } },
+        { facingMode: 'environment' },
+        {
+          fps: 10,
+          qrbox: (viewfinderWidth, viewfinderHeight) => {
+            const size = Math.min(viewfinderWidth, viewfinderHeight) * 0.75;
+            return { width: size, height: size };
+          },
+          aspectRatio: 1.0,
+        },
         (decodedText) => {
           onScanSuccess(decodedText);
         },
@@ -48,7 +55,7 @@ export function QrScanner({
 
   return (
     <div>
-      <div id={containerId} className="rounded-lg overflow-hidden" />
+      <div id={containerId} className="rounded-lg overflow-hidden w-full [&_video]:!w-full [&_video]:!h-auto [&_video]:!min-h-[400px] [&_video]:!object-cover" />
       {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
     </div>
   );
