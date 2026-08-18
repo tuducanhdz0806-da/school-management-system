@@ -40,10 +40,10 @@ export default function StudentAttendancePage() {
       <h1 className="text-2xl font-bold mb-1">Điểm danh QR</h1>
       <p className="text-gray-500 mb-6">Quét mã QR do giáo viên cung cấp để điểm danh</p>
 
-      <div className="rounded-lg border bg-white p-5">
+      <div className="rounded-lg border bg-white p-4 sm:p-6">
         {state === 'idle' && (
-          <div className="text-center py-8">
-            <Camera className="h-12 w-12 mx-auto text-gray-300 mb-3" />
+          <div className="text-center py-12">
+            <Camera className="h-16 w-16 mx-auto text-gray-300 mb-4" />
             <p className="text-sm text-gray-500 mb-4">
               Bấm nút bên dưới để mở camera và quét mã QR
             </p>
