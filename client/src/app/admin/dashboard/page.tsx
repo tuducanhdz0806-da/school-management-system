@@ -60,7 +60,7 @@ export default function AdminDashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} className="h-24 w-full" />
         ))}
@@ -84,7 +84,7 @@ export default function AdminDashboardPage() {
       <p className="text-gray-500 mb-6">Chào mừng quay lại hệ thống quản lý.</p>
 
       {/* Thẻ thống kê nhanh */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard
           icon={GraduationCap}
           label="Học sinh"
@@ -111,9 +111,9 @@ export default function AdminDashboardPage() {
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Biểu đồ sĩ số theo khối */}
-        <div className="col-span-2 rounded-lg border bg-white p-5">
+        <div className="lg:col-span-2 rounded-lg border bg-white p-5">
           <h2 className="font-medium mb-4">Sĩ số theo khối</h2>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={data.classesByGrade}>
