@@ -84,7 +84,7 @@ export default function TeacherDashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <Skeleton key={i} className="h-24 w-full" />
         ))}
@@ -110,7 +110,7 @@ export default function TeacherDashboardPage() {
       <p className="text-gray-500 mb-6">Chào mừng thầy/cô quay lại hệ thống.</p>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <KpiCard
           icon={School}
           label="Số lớp phụ trách"
@@ -146,9 +146,9 @@ export default function TeacherDashboardPage() {
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main content (2/3) */}
-        <div className="col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6">
           {/* Lịch dạy hôm nay */}
           <div className="rounded-lg border bg-white">
             <div className="px-5 py-4 border-b flex items-center justify-between">
@@ -166,8 +166,8 @@ export default function TeacherDashboardPage() {
                 data.todaySchedules.map((s: any) => {
                   const status = STATUS_CONFIG[s.status];
                   return (
-                    <div key={s.id} className="px-5 py-4 flex items-center justify-between">
-                      <div className="flex items-center gap-4">
+                    <div key={s.id} className="px-4 sm:px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="flex items-center gap-4 min-w-0">
                         <div className="text-center w-12 shrink-0">
                           <p className="text-xs text-gray-400">Tiết</p>
                           <p className="font-semibold">{s.period}</p>
@@ -181,7 +181,7 @@ export default function TeacherDashboardPage() {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 shrink-0 pl-16 sm:pl-0">
                         <Badge className={status.className} variant="secondary">
                           <span className={`h-1.5 w-1.5 rounded-full ${status.dot} mr-1.5 ${s.status === 'ONGOING' ? 'animate-pulse' : ''}`} />
                           {status.label}
@@ -217,11 +217,11 @@ export default function TeacherDashboardPage() {
                 data.pendingTasks.map((task: any, i: number) => (
                   <div
                     key={i}
-                    className="px-5 py-4 flex items-center justify-between hover:bg-gray-50 cursor-pointer"
+                    className="px-4 sm:px-5 py-4 flex items-center justify-between gap-2 hover:bg-gray-50 cursor-pointer"
                     onClick={() => router.push('/teacher/scores')}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="rounded-full bg-amber-50 p-2">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="rounded-full bg-amber-50 p-2 shrink-0">
                         <ClipboardList className="h-4 w-4 text-amber-600" />
                       </div>
                       <div>

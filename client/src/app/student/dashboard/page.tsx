@@ -79,7 +79,7 @@ export default function StudentDashboardPage() {
 
   if (isLoading || !data) {
     return (
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {Array.from({ length: 3 }).map((_, i) => (
           <Skeleton key={i} className="h-24 w-full" />
         ))}
@@ -95,7 +95,7 @@ export default function StudentDashboardPage() {
       </p>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <KpiCard
           icon={GraduationCap}
           label="Điểm trung bình tích lũy"
@@ -121,9 +121,9 @@ export default function StudentDashboardPage() {
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main content (2/3) */}
-        <div className="col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-6">
           {/* Thời khóa biểu hôm nay */}
           <div className="rounded-lg border bg-white">
             <div className="px-5 py-4 border-b flex items-center justify-between">
@@ -141,8 +141,8 @@ export default function StudentDashboardPage() {
                 data.todaySchedules.map((s: any) => {
                   const status = STATUS_CONFIG[s.status];
                   return (
-                    <div key={s.id} className="px-5 py-4 flex items-center justify-between">
-                      <div className="flex items-center gap-4">
+                    <div key={s.id} className="px-4 sm:px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                      <div className="flex items-center gap-4 min-w-0">
                         <div className="text-center w-12 shrink-0">
                           <p className="text-xs text-gray-400">Tiết</p>
                           <p className="font-semibold">{s.period}</p>
@@ -154,7 +154,7 @@ export default function StudentDashboardPage() {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 shrink-0 pl-16 sm:pl-0">
                         <Badge className={status.className} variant="secondary">
                           <span
                             className={`h-1.5 w-1.5 rounded-full ${status.dot} mr-1.5 ${s.status === 'ONGOING' ? 'animate-pulse' : ''}`}
@@ -192,12 +192,12 @@ export default function StudentDashboardPage() {
             ) : (
               <div className="divide-y">
                 {data.recentScores.map((s: any, i: number) => (
-                  <div key={i} className="px-5 py-3 flex items-center justify-between text-sm">
-                    <div>
+                  <div key={i} className="px-4 sm:px-5 py-3 flex items-center justify-between gap-2 text-sm">
+                    <div className="min-w-0 truncate">
                       <span className="font-medium">{s.subjectName}</span>
                       <span className="text-gray-400"> · {SCORE_TYPE_LABELS[s.scoreType]}</span>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3 sm:gap-4 shrink-0">
                       <span
                         className={`font-semibold ${s.value >= 8 ? 'text-green-600' : s.value >= 5 ? 'text-amber-600' : 'text-red-600'}`}
                       >
